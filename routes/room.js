@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 const {
-  renderMain, renderRoom, createRoom, enterRoom, removeRoom, sendChat, sendGif,
+  renderMain, renderRoom, createRoom, enterRoom, removeRoom, sendChat, sendGif, enterPrivateRoom,
 } = require('../controllers/room');
 
 const router = express.Router();
@@ -28,6 +28,8 @@ router.get('/room/:id', enterRoom);
 router.delete('/room/:id', removeRoom);
 
 router.post('/room/:id/chat', sendChat);
+
+router.post('/room/private/enter', enterPrivateRoom);
 
 try {
   fs.readdirSync('uploads');

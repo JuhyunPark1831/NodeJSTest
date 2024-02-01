@@ -149,4 +149,30 @@
       });
     });
   </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const addFriendButtons = document.querySelectorAll('.chat-friend-btn');
+      addFriendButtons.forEach((button) => {
+        button.addEventListener('click', async () => {
+          const requestedId = button.getAttribute('data-requestedId');
+          const requestingId = button.getAttribute('data-requestingId');
+          if (confirm(`채팅하겠습니까?`)) {
+            try {
+              // 서버에 친구 추가 요청 수락을 보내는 부분
+              const response = await axios.post('/chatroom/room/private/enter', {
+                requestedId,
+                requestingId,
+              });
+              confirm(response.data);
+              location.href = '/chatroom/room/' + response.data;
+            } catch (error) {
+              console.error(error);
+              alert(error);
+              alert('친구를 삭제하는 중에 오류가 발생했습니다.');
+            }
+          }
+        });
+      });
+    });
+  </script>
 {% endblock %}

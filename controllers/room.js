@@ -1,4 +1,4 @@
-const { User, Post, Hashtag, Room, Chat } = require('../models');
+const { User, Post, Hashtag, Room, Chat, ChatRoomMember } = require('../models');
 
 
 exports.renderMain = async (req, res, next) => {
@@ -17,11 +17,6 @@ exports.renderRoom = (req, res) => {
 
 exports.createRoom = async (req, res, next) => {
   try {
-    console.log("reqbody: ", req.body);
-    console.log("reqbody: ", req.body);
-    console.log("reqbody: ", req.body);
-    console.log("reqbody: ", req.body);
-    console.log("reqbody: ", req.body);
     const newRoom = await Room.create({
       title: req.body.title,
       max: req.body.max,
@@ -65,6 +60,50 @@ exports.enterRoom = async (req, res, next) => {
       title: room.title,
       chats,
     });
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
+};
+
+exports.enterPrivateRoom = async (req, res, next) => {
+  try {
+    const user1room = await ChatRoomMember.findAll({ 
+      where: { userId: req.body.requestedId },
+      attributes: ['roomId'],
+     });
+    const user2room = await ChatRoomMember.findAll({ 
+      where: { userid: req.body.requestingId },
+      attributes: ['roomId'],
+     });
+     const user1roomIds = user1room.map(({ roomId }) => roomId);
+     const user2roomIds = user2room.map(({ roomId }) => roomId);
+
+     const roomId = user1roomIds.filter(roomId => user2roomIds.includes(roomId));
+     const room = await Room.findOne({ where: { id: roomId } });
+     const chats = await Chat.findAll({
+      where: { roomId: room.id }, // room._id가 아닌 room.id를 사용
+      order: [['createdAt', 'ASC']], // 'ASC' 또는 'DESC'로 정렬 순서 설정
+    });
+    const io = req.app.get('io');
+    if (!roomId.length) {
+      const newRoom = await Room.create({
+        title: null,
+        max: 2,
+        owner: null,
+        password: "",
+      });
+      io.of('/room').emit('newRoom', newRoom);
+      await ChatRoomMember.create({
+        userId: req.body.requestedId,
+        roomId: newRoom.id,
+      })
+      await ChatRoomMember.create({
+        userId: req.body.requestingId,
+        roomId: newRoom.id,
+      })
+    }
+    return res.send(roomId)
   } catch (error) {
     console.error(error);
     return next(error);

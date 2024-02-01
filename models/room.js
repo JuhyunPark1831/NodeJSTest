@@ -35,6 +35,7 @@ class Room extends Sequelize.Model {
   }
   static associate(db) {
     db.Room.hasMany(db.Chat, { foreignKey: 'roomId', as: 'chats' });
+    db.User.hasMany(db.ChatRoomMember, { foreignKey: 'roomId', as: 'roomChatRoomMembers'});
   }
 };
 
