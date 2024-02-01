@@ -1,0 +1,24 @@
+{
+  "development": {
+    "username": "root",
+    "password": "park1831",
+    "database": "nodebird",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "operatorAliases": false
+  },
+  "test": {
+    "username": "root",
+    "password": "park1831",
+    "database": "database_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": "park1831",
+    "database": "database_production",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  }
+}

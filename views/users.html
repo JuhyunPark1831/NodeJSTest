@@ -1,0 +1,56 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+  <div class="timeline">
+    <h2>전체 유저 목록</h2>
+    <div class="all-users">
+      {% for use in users %}
+        {% if use.id !== user.id %}
+          <div>
+            {{ use.nick }}
+            {% if use.isFriend %}
+            {% else %}
+              <button class="add-friend-btn" data-requestedId="{{ use.id }}" data-requestingId="{{ user.id }}">친구 추가</button>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <script>
+    // JavaScript 코드: 친구 추가 버튼 클릭 시
+    document.addEventListener('DOMContentLoaded', () => {
+      const addFriendButtons = document.querySelectorAll('.add-friend-btn');
+      addFriendButtons.forEach((button) => {
+        button.addEventListener('click', async () => {
+          const requestedId = button.getAttribute('data-requestedId');
+          const requestingId = button.getAttribute('data-requestingId');
+          
+  
+          if (confirm(`${requestedId}님에게 친구 요청을 보내시겠습니까?`)) {
+            try {
+              // 서버에 친구 추가 요청을 보내는 부분
+              const response = await axios.post('/user/friendship', {
+                requestedId,
+                requestingId,
+              });
+  
+              // 서버 응답에 따른 처리
+              if (response.status === 200) {
+                alert('친구 요청이 전송되었습니다.');
+                // 여기에서 페이지 새로고침이나 다른 동작을 추가할 수 있습니다.
+              } else {
+                alert('친구 요청을 보내는 중에asd 오류가 발생했습니다.');
+              }
+            } catch (error) {
+              console.error(error);
+              alert(error);
+              alert('친구 요청을 보내는 중에 오류가 발생했습니다.');
+            }
+          }
+        });
+      });
+    });
+  </script>
+{% endblock %}

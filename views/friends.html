@@ -1,0 +1,152 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+  <input id="my-id" type="hidden" value="{{user.id}}">
+  <a id="request-friends" class="btn">수신함</a>
+  <a id="list-friends" class="btn">목록</a>
+  <div id = 'nowContent'class="timeline">
+    <h2>친구 신청 목록</h2>
+    <div class="friend-requests">
+      {% for friend in friendsRequest %}
+        <div>
+          {{ friend.nick }}
+          <button class="accept-friend-btn" data-requestingId="{{ friend.id }}" data-requestedId="{{ user.id }}">수락</button>
+          <button class="reject-friend-btn" data-requestingId="{{ friend.id }}" data-requestedId="{{ user.id }}">거절</button>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div id = "other-content" style="display: none;">
+    <h2>친구 목록</h2>
+    <div class="friend-requests">
+      {% for friend in friends %}
+        <div>
+          {{ friend.nick }}
+          <button class="delete-friend-btn" data-requestingId="{{ friend.id }}" data-requestedId="{{ user.id }}">친구삭제</button>
+          <button class="chat-friend-btn" data-requestingId="{{ friend.id }}" data-requestedId="{{ user.id }}">DM</button>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block script %}
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const requestButton = document.getElementById('request-friends');
+      const listButton = document.getElementById('list-friends');
+      const nowContent = document.getElementById('nowContent')
+      const otherContent = document.getElementById('other-content');
+
+      requestButton.addEventListener('click', () => {
+        nowContent.style.display = 'block';
+        otherContent.style.display = 'none';
+      });
+
+      listButton.addEventListener('click', () => {
+        // 목록 버튼 클릭 시 다른 내용 표시
+        otherContent.style.display = 'block';
+        nowContent.style.display = 'none';
+      });
+    });
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const addFriendButtons = document.querySelectorAll('.accept-friend-btn');
+      addFriendButtons.forEach((button) => {
+        button.addEventListener('click', async () => {
+          const requestedId = button.getAttribute('data-requestedId');
+          const requestingId = button.getAttribute('data-requestingId');
+          if (confirm(`수락하겠습니까?`)) {
+            try {
+              // 서버에 친구 추가 요청 수락을 보내는 부분
+              const response = await axios.post('/user/friendship/accept', {
+                requestedId,
+                requestingId,
+              });
+  
+              // 서버 응답에 따른 처리
+              if (response.status === 200) {
+                alert('친구 요청이 수락되었습니다.');
+                location.reload();
+                // 여기에서 페이지 새로고침이나 다른 동작을 추가할 수 있습니다.
+              } else {
+                alert('친구 요청을 수락하는 중에 오류가 발생했습니다.');
+              }
+            } catch (error) {
+              console.error(error);
+              alert(error);
+              alert('친구 요청을 수락하는 중에 오류가 발생했습니다.');
+            }
+          }
+        });
+      });
+    });
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const addFriendButtons = document.querySelectorAll('.reject-friend-btn');
+      addFriendButtons.forEach((button) => {
+        button.addEventListener('click', async () => {
+          const requestedId = button.getAttribute('data-requestedId');
+          const requestingId = button.getAttribute('data-requestingId');
+          if (confirm(`거절하겠습니까?`)) {
+            try {
+              // 서버에 친구 추가 요청 수락을 보내는 부분
+              const response = await axios.post('/user/friendship/reject', {
+                requestedId,
+                requestingId,
+              });
+  
+              // 서버 응답에 따른 처리
+              if (response.status === 200) {
+                alert('친구 요청이 거절되었습니다.');
+                location.reload();
+                // 여기에서 페이지 새로고침이나 다른 동작을 추가할 수 있습니다.
+              } else {
+                alert('친구 요청을 거절하는 중에 오류가 발생했습니다.');
+              }
+            } catch (error) {
+              console.error(error);
+              alert(error);
+              alert('친구 요청을 거절하는 중에 오류가 발생했습니다.');
+            }
+          }
+        });
+      });
+    });
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const addFriendButtons = document.querySelectorAll('.delete-friend-btn');
+      addFriendButtons.forEach((button) => {
+        button.addEventListener('click', async () => {
+          const requestedId = button.getAttribute('data-requestedId');
+          const requestingId = button.getAttribute('data-requestingId');
+          if (confirm(`삭제하겠습니까?`)) {
+            try {
+              // 서버에 친구 추가 요청 수락을 보내는 부분
+              const response = await axios.post('/user/friendship/delete', {
+                requestedId,
+                requestingId,
+              });
+  
+              // 서버 응답에 따른 처리
+              if (response.status === 200) {
+                alert('친구가 삭제되었습니다.');
+                location.reload();
+                // 여기에서 페이지 새로고침이나 다른 동작을 추가할 수 있습니다.
+              } else {
+                alert('친구를 삭제하는 중에 오류가 발생했습니다.');
+              }
+            } catch (error) {
+              console.error(error);
+              alert(error);
+              alert('친구를 삭제하는 중에 오류가 발생했습니다.');
+            }
+          }
+        });
+      });
+    });
+  </script>
+{% endblock %}
