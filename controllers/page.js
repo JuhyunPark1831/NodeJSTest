@@ -1,8 +1,16 @@
 const { User, Post, Hashtag, Friendship } = require('../models');
 const { Op } = require('sequelize');
 
-exports.renderProfile = (req, res) => {
-  res.render('profile', { title: '내 정보 - NodeBird' });
+exports.renderFollow = (req, res) => {
+  res.render('follow', { title: '내 정보 - NodeBird' });
+};
+
+exports.renderRooms = (req, res) => {
+  res.render('rooms', { title: '전체 채팅방 목록 - NodeBird'});
+};
+
+exports.renderJoin = (req, res) => {
+  res.render('join', { title: '회원가입 - NodeBird' });
 };
 
 exports.renderUsers = async (req, res, next) => {
@@ -18,7 +26,6 @@ exports.renderUsers = async (req, res, next) => {
       },
       attributes: ['userAId', 'userBId'],
     });
-    // 친구 신청자의 ID 목록 가져오기
     const isFriendArray = allUsers.map((user) => {
       const friendRequest = pendingFriendRequests.find((request) => {
           return (
@@ -29,7 +36,7 @@ exports.renderUsers = async (req, res, next) => {
       return {
           id: user.id,
           nick: user.nick,
-          isFriend: !!friendRequest, // Check if there's a friend request
+          isFriend: !!friendRequest,
       };
   });
 
@@ -41,14 +48,6 @@ exports.renderUsers = async (req, res, next) => {
     console.error(err);
     next(err);
   }
-};
-
-exports.renderRooms = (req, res) => {
-  res.render('rooms', { title: '전체 채팅방 목록 - NodeBird'});
-};
-
-exports.renderJoin = (req, res) => {
-  res.render('join', { title: '회원가입 - NodeBird' });
 };
 
 exports.renderMain = async (req, res, next) => {
@@ -102,7 +101,6 @@ exports.renderFriendsRequest = async (req, res, next) => {
       },
       attributes: ['userAId'],
     });
-    // 친구 신청자의 ID 목록 가져오기
     const requestingUserIds = pendingFriendRequests.map((friendship) => friendship.userAId);
 
     const requestingUserDetails = await User.findAll({

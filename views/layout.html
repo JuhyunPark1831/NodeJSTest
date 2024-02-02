@@ -26,6 +26,7 @@
           <a id="my-profile" href="/chatroom" class="btn">Rooms</a>
           <a id="my-profile" href="/users" class="btn">Users</a>
           <a id="my-profile" href="/friends" class="btn">Friends</a>
+          <a id="logout" href="/follow" class="btn">Follow</a>
           <a id="logout" href="/auth/logout" class="btn">Logout</a>
         {% else %}
           <form id="login-form" action="/auth/login" method="post">
@@ -39,7 +40,6 @@
             </div>
             <a id="join" href="/join" class="btn">회원가입</a>
             <button id="login" type="submit" class="btn">로그인</button>
-            <a id="kakao" href="/auth/kakao" class="btn">카카오톡</a>
           </form>
         {% endif %}
         </div>

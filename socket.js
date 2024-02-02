@@ -18,14 +18,14 @@ module.exports = (server, app, sessionMiddleware) => {
 
   chat.on('connection', (socket) => {
     console.log('chat 네임스페이스에 접속');
-
     socket.on('join', (data) => {
       socket.join(data);
       socket.to(data).emit('join', {
         user: 'system',
-        chat: `${socket.request.session.color}님이 입장하셨습니다.`,
+        chat: `${socket.request.user}님이 입장하셨습니다.`,
       });
     });
+    
 
     socket.on('disconnect', async () => {
       console.log('chat 네임스페이스 접속 해제');
@@ -33,16 +33,6 @@ module.exports = (server, app, sessionMiddleware) => {
       const roomId = new URL(referer).pathname.split('/').at(-1);
       const currentRoom = chat.adapter.rooms.get(roomId);
       const userCount = currentRoom?.size || 0;
-      if (userCount === 0) { // 유저가 0명이면 방 삭제
-        await removeRoom(roomId); // 컨트롤러 대신 서비스를 사용
-        room.emit('removeRoom', roomId);
-        console.log('방 제거 요청 성공');
-      } else {
-        socket.to(roomId).emit('exit', {
-          user: 'system',
-          chat: `${socket.request.session.color}님이 퇴장하셨습니다.`,
-        });
-      }
     });
   });
 };

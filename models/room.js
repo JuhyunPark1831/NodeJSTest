@@ -21,6 +21,11 @@ class Room extends Sequelize.Model {
         allowNull: false,
         defaultValue: 'local',
       },
+      roomType: {
+        type: Sequelize.ENUM('public', 'private'),
+        allowNull: false,
+        defaultValue: 'public',
+      },
       createdAt: {
         type: Sequelize.DATE,
           defaultValue: Sequelize.NOW,

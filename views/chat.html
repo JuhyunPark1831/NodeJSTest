@@ -8,7 +8,7 @@
     <div id="chat-list">
       {% for chat in chats %}
         {% if chat.user === user %}
-          <div class="mine" style="color: {{chat.user}}">
+          <div class="mine">
             <div>{{chat.user}}</div>
             {% if chat.gif %}
               <img src="/gif/{{chat.gif}}">
@@ -21,7 +21,7 @@
             <div>{{chat.chat}}</div>
           </div>
         {% else %}
-          <div class="other" style="color: {{chat.user}}">
+          <div class="other">
             <div>{{chat.user}}</div>
             {% if chat.gif %}
               <img src="/gif/{{chat.gif}}">

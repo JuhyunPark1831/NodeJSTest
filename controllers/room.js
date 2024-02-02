@@ -3,8 +3,19 @@ const { User, Post, Hashtag, Room, Chat, ChatRoomMember } = require('../models')
 
 exports.renderMain = async (req, res, next) => {
   try {
-    const rooms = await Room.findAll({});
-    res.render('rooms', { rooms, title: 'GIF 채팅방' });
+    const rooms = await Room.findAll({
+      where: {
+        roomType: 'public',
+      },
+    });
+    userCounts = {};
+    const io = req.app.get('io');
+    rooms.forEach((room) => {
+      const roomId = room.id.toString(); // 방의 ID를 문자열로 변환
+      const userCount = io.of('/chat').adapter.rooms.get(roomId)?.size || 0;
+      userCounts[roomId] = userCount;
+    });
+    res.render('rooms', { rooms, userCounts, title: 'GIF 채팅방' });
   } catch (error) {
     console.error(error);
     next(error);
@@ -22,6 +33,7 @@ exports.createRoom = async (req, res, next) => {
       max: req.body.max,
       owner: req.body.User,
       password: req.body.password,
+      roomType: 'public',
     });
     const io = req.app.get('io');
     io.of('/room').emit('newRoom', newRoom);
@@ -80,11 +92,7 @@ exports.enterPrivateRoom = async (req, res, next) => {
      const user2roomIds = user2room.map(({ roomId }) => roomId);
 
      const roomId = user1roomIds.filter(roomId => user2roomIds.includes(roomId));
-     const room = await Room.findOne({ where: { id: roomId } });
-     const chats = await Chat.findAll({
-      where: { roomId: room.id }, // room._id가 아닌 room.id를 사용
-      order: [['createdAt', 'ASC']], // 'ASC' 또는 'DESC'로 정렬 순서 설정
-    });
+     
     const io = req.app.get('io');
     if (!roomId.length) {
       const newRoom = await Room.create({
@@ -92,6 +100,7 @@ exports.enterPrivateRoom = async (req, res, next) => {
         max: 2,
         owner: null,
         password: "",
+        roomType: 'private'
       });
       io.of('/room').emit('newRoom', newRoom);
       await ChatRoomMember.create({
@@ -102,8 +111,21 @@ exports.enterPrivateRoom = async (req, res, next) => {
         userId: req.body.requestingId,
         roomId: newRoom.id,
       })
+      roomId[0] = newRoom.id;
     }
-    return res.send(roomId)
+    else {
+      const room = await Room.findOne({ where: { id: roomId } });
+     const chats = await Chat.findAll({
+      where: { roomId: room.id }, // room._id가 아닌 room.id를 사용
+      order: [['createdAt', 'ASC']], // 'ASC' 또는 'DESC'로 정렬 순서 설정
+    });
+    }
+    console.log(roomId);
+    console.log(roomId);
+    console.log(roomId);
+    console.log(roomId);
+    console.log(roomId);
+    res.send(roomId);
   } catch (error) {
     console.error(error);
     return next(error);
@@ -128,7 +150,7 @@ exports.sendChat = async (req, res, next) => {
     console.log(req.user.id);
     const chat = await Chat.create({
       roomId: req.params.id,
-      user: req.user.id,
+      user: req.user.nick,
       chat: req.body.chat,
     });
     req.app.get('io').of('/chat').to(req.params.id).emit('chat', chat);

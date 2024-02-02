@@ -1,7 +1,7 @@
 const express = require('express');
 const { isLoggedIn, isNotLoggedIn } = require('../middlewares');
 const {
-  renderJoin, renderMain, renderHashtag, renderUsers, renderRooms, renderFriendsRequest
+  renderJoin, renderMain, renderHashtag, renderUsers, renderRooms, renderFriendsRequest, renderFollow
 } = require('../controllers/page');
 
 const router = express.Router();
@@ -13,6 +13,8 @@ router.use((req, res, next) => {
   res.locals.followingIdList = req.user?.Followings?.map(f => f.id) || [];
   next();
 });
+
+router.get('/follow', isLoggedIn, renderFollow);
 
 router.get('/friends', isLoggedIn, renderFriendsRequest);
 
