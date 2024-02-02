@@ -5,11 +5,12 @@
   <a href="/" id="exit-btn">방 나가기</a>
   <fieldset>
     <legend>채팅 내용</legend>
+    <div id="user-nick" data-usernick="{{ user.nick }}"></div>
     <div id="chat-list">
       {% for chat in chats %}
         {% if chat.user === user %}
           <div class="mine">
-            <div>{{chat.user}}</div>
+            <div>me</div>
             {% if chat.gif %}
               <img src="/gif/{{chat.gif}}">
             {% else %}
@@ -34,8 +35,6 @@
     </div>
   </fieldset>
   <form action="/chat" id="chat-form" method="post" enctype="multipart/form-data">
-    <label for="gif">GIF 올리기</label>
-    <input type="file" id="gif" name="gif" accept="image/gif">
     <input type="text" id="chat" name="chat">
     <button type="submit">전송</button>
   </form>
@@ -45,7 +44,10 @@
     const socket = io.connect('http://localhost:8001/chat', {
       path: '/socket.io',
     });
-    socket.emit('join', new URL(location).pathname.split('/').at(-1));
+    const userNickElement = document.getElementById('user-nick');
+    const userNick = userNickElement ? userNickElement.dataset.usernick : null;
+
+    socket.emit('join', new URL(location).pathname.split('/').at(-1), userNick);
     socket.on('join', function (data) {
       const div = document.createElement('div');
       div.classList.add('system');
@@ -76,12 +78,7 @@
         const chat = document.createElement('div');
         chat.textContent = data.chat;
         div.appendChild(chat);
-      } else {
-        const gif = document.createElement('img');
-        gif.src = '/gif/' + data.gif;
-        div.appendChild(gif);
       }
-      div.style.color = data.user;
       document.querySelector('#chat-list').appendChild(div);
     });
     document.querySelector('#chat-form').addEventListener('submit', function (e) {
@@ -97,18 +94,6 @@
             console.error(err);
           });
       }
-    });
-    document.querySelector('#gif').addEventListener('change', function (e) {
-      console.log(e.target.files);
-      const formData = new FormData();
-      formData.append('gif', e.target.files[0]);
-      axios.post('/room/{{room._id}}/gif', formData)
-        .then(() => {
-          e.target.file = null;
-        })
-        .catch((err) => {
-          console.error(err);
-        });
     });
   </script>
 {% endblock %}

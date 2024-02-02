@@ -8,19 +8,6 @@ class Room extends Sequelize.Model {
         allowNull: true,
         unique: true,
       },
-      max: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
-      owner: {
-        type: Sequelize.STRING(30),
-        allowNull: true,
-      },
-      password: {
-        type: Sequelize.STRING(40),
-        allowNull: false,
-        defaultValue: 'local',
-      },
       roomType: {
         type: Sequelize.ENUM('public', 'private'),
         allowNull: false,

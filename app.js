@@ -7,6 +7,8 @@ const nunjucks = require('nunjucks');
 const dotenv = require('dotenv');
 const passport = require('passport');
 const ColorHash = require('color-hash').default;
+const CircularJSON = require('circular-json');
+const SocketIO = require('socket.io');
 
 dotenv.config();
 const pageRouter = require('./routes/page');
@@ -49,7 +51,6 @@ app.use('/img', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
-app.use(sessionMiddleware);
 app.use(session({
   resave: false,
   saveUninitialized: false,
@@ -59,8 +60,43 @@ app.use(session({
     secure: false,
   },
 }));
+app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use((req, res, next) => {
+  console.log("asdfadsfdsfdfsf", CircularJSON.stringify(req.session, null, 2));
+  if (req.user && req.user.nick) {
+    const userNick = req.user.nick;
+    console.log(userNick);
+    req.session.userNick = userNick;
+    console.log("requestnick: ",req.session.nick);
+  }
+   next();
+ })
+
+
+const server = app.listen(app.get('port'), () => {
+  console.log(app.get('port'), '번 포트에서 대기중');
+});
+
+const io = SocketIO(server, { path: '/socket.io' });
+app.set('io', io);
+
+io.use((socket, next) => {
+  sessionMiddleware(socket.request, {}, (err) => {
+    if (err) {
+      return next(err);
+    }
+    
+    const userNick = socket.request.session.userNick;
+    if (userNick) {
+      socket.userNick = userNick;
+    }
+
+    next();
+  });
+});
 
 app.use('/', pageRouter);
 app.use('/auth', authRouter);
@@ -78,10 +114,6 @@ app.use((err, req, res, next) => {
   res.locals.error = process.env.NODE_ENV !== 'production' ? err : {};
   res.status(err.status || 500);
   res.render('error');
-});
-
-const server = app.listen(app.get('port'), () => {
-  console.log(app.get('port'), '번 포트에서 대기중');
 });
 
 webSocket(server, app, sessionMiddleware);

@@ -1,6 +1,5 @@
 const User = require('../models/user');
 const Friendship = require('../models/friendship');
-const Op = require('sequelize');
 
 exports.follow = async (req, res, next) => {
   try {

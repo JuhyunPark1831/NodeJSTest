@@ -1,16 +1,20 @@
 const { User, Post, Hashtag, Friendship } = require('../models');
 const { Op } = require('sequelize');
 
+exports.renderMain = async (req, res, next) => {
+  res.render('main');
+}
+
 exports.renderFollow = (req, res) => {
-  res.render('follow', { title: '내 정보 - NodeBird' });
+  res.render('follow', { title: '내 정보' });
 };
 
 exports.renderRooms = (req, res) => {
-  res.render('rooms', { title: '전체 채팅방 목록 - NodeBird'});
+  res.render('rooms', { title: '채팅방 목록'});
 };
 
 exports.renderJoin = (req, res) => {
-  res.render('join', { title: '회원가입 - NodeBird' });
+  res.render('join', { title: '회원가입' });
 };
 
 exports.renderUsers = async (req, res, next) => {
@@ -41,7 +45,7 @@ exports.renderUsers = async (req, res, next) => {
   });
 
     res.render('users', {
-      title: '전체 유저 목록 - NodeBird',
+      title: '전체 유저 목록',
       users: isFriendArray,
     });
   } catch (err) {
@@ -49,25 +53,6 @@ exports.renderUsers = async (req, res, next) => {
     next(err);
   }
 };
-
-exports.renderMain = async (req, res, next) => {
-  try {
-    const posts = await Post.findAll({
-      include: {
-        model: User,
-        attributes: ['id', 'nick'],
-      },
-      order: [['createdAt', 'DESC']],
-    });
-    res.render('main', {
-      title: 'NodeBird',
-      twits: posts,
-    });
-  } catch (err) {
-    console.error(err);
-    next(err);
-  }
-}
 
 exports.renderHashtag = async (req, res, next) => {
   const query = req.query.hashtag;
@@ -82,7 +67,7 @@ exports.renderHashtag = async (req, res, next) => {
     }
 
     return res.render('main', {
-      title: `${query} | NodeBird`,
+      title: `${query}`,
       twits: posts,
     });
   } catch (error) {
@@ -137,7 +122,7 @@ exports.renderFriendsRequest = async (req, res, next) => {
     
 
     res.render('friends', {
-      title: '친구 목록 - NodeBird',
+      title: '친구 목록',
       friendsRequest: requestingUserDetails,
       friends: friendDetails,
     });

@@ -1,4 +1,4 @@
-const { User, Post, Hashtag, Room, Chat, ChatRoomMember } = require('../models');
+const { Room, Chat, ChatRoomMember } = require('../models');
 
 
 exports.renderMain = async (req, res, next) => {
@@ -132,16 +132,6 @@ exports.enterPrivateRoom = async (req, res, next) => {
   }
 };
 
-exports.removeRoom = async (req, res, next) => {
-  try {
-    await removeRoomService(req.params.id);
-    res.send('ok');
-  } catch (error) {
-    console.error(error);
-    next(error);
-  }
-};
-
 exports.sendChat = async (req, res, next) => {
   try {
     console.log(req.user.id);
@@ -152,21 +142,6 @@ exports.sendChat = async (req, res, next) => {
       roomId: req.params.id,
       user: req.user.nick,
       chat: req.body.chat,
-    });
-    req.app.get('io').of('/chat').to(req.params.id).emit('chat', chat);
-    res.send('ok');
-  } catch (error) {
-    console.error(error);
-    next(error);
-  }
-};
-
-exports.sendGif = async (req, res, next) => {
-  try {
-    const chat = await Chat.create({
-      room: req.params.id,
-      user: req.session.color,
-      gif: req.file.filename,
     });
     req.app.get('io').of('/chat').to(req.params.id).emit('chat', chat);
     res.send('ok');
