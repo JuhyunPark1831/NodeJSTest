@@ -4,14 +4,14 @@
   <input id="my-id" type="hidden" value="{{ user.id }}">
   <a id="request-friends" class="btn">수신함</a>
   <a id="list-friends" class="btn">목록</a>
-  <div>
-    <h2>친구 목록</h2>
+  <div id="nowContent" class="timeline">
+    <h2>친구 신청 목록</h2>
     <div class="friend-requests">
-      {% for friend in friends %}
+      {% for friend in friendsRequest %}
         <div>
           {{ friend.nick }}
-          <button class="delete-friend-btn" data-requestingId="{{ friend.id }}" data-requestedId="{{ user.id }}">친구삭제</button>
-          <button class="chat-friend-btn" data-requestingId="{{ friend.id }}" data-requestedId="{{ user.id }}">DM</button>
+          <button class="accept-friend-btn" data-requestingId="{{ friend.id }}" data-requestedId="{{ user.id }}">수락</button>
+          <button class="reject-friend-btn" data-requestingId="{{ friend.id }}" data-requestedId="{{ user.id }}">거절</button>
         </div>
       {% endfor %}
     </div>
@@ -36,29 +36,29 @@
 </script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    // 삭제 버튼 클릭 이벤트 등록
-    const deleteFriendButtons = document.querySelectorAll('.delete-friend-btn');
-    deleteFriendButtons.forEach((button) => {
+    // 수락 버튼 클릭 이벤트 등록
+    const acceptFriendButtons = document.querySelectorAll('.accept-friend-btn');
+    acceptFriendButtons.forEach((button) => {
       button.addEventListener('click', async () => {
         const requestedId = button.getAttribute('data-requestedId');
         const requestingId = button.getAttribute('data-requestingId');
-        if (confirm(`친구를 삭제하겠습니까?`)) {
+        if (confirm(`친구 요청을 수락하시겠습니까?`)) {
           try {
-            const response = await axios.post('/user/friendship/delete', {
+            const response = await axios.post('/user/friendship/accept', {
               requestedId,
               requestingId,
             });
 
             if (response.status === 200) {
-              alert('친구가 삭제되었습니다.');
+              alert('친구 요청이 수락되었습니다.');
               location.reload();
             } else {
-              alert('친구를 삭제하는 중에 오류가 발생했습니다.');
+              alert('친구 요청을 수락하는 중에 오류가 발생했습니다.');
             }
           } catch (error) {
             console.error(error);
             alert(error);
-            alert('친구를 삭제하는 중에 오류가 발생했습니다.');
+            alert('친구 요청을 수락하는 중에 오류가 발생했습니다.');
           }
         }
       });
@@ -67,23 +67,29 @@
 </script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    // 채팅 버튼 클릭 이벤트 등록
-    const chatFriendButtons = document.querySelectorAll('.chat-friend-btn');
-    chatFriendButtons.forEach((button) => {
+    // 거절 버튼 클릭 이벤트 등록
+    const rejectFriendButtons = document.querySelectorAll('.reject-friend-btn');
+    rejectFriendButtons.forEach((button) => {
       button.addEventListener('click', async () => {
         const requestedId = button.getAttribute('data-requestedId');
         const requestingId = button.getAttribute('data-requestingId');
-        if (confirm(`채팅을 시작하겠습니까?`)) {
+        if (confirm(`친구 요청을 거절하시겠습니까?`)) {
           try {
-            const response = await axios.post('/chatroom/room/private/enter', {
+            const response = await axios.post('/user/friendship/reject', {
               requestedId,
               requestingId,
             });
-            location.href = '/chatroom/room/' + response.data;
+
+            if (response.status === 200) {
+              alert('친구 요청이 거절되었습니다.');
+              location.reload();
+            } else {
+              alert('친구 요청을 거절하는 중에 오류가 발생했습니다.');
+            }
           } catch (error) {
             console.error(error);
             alert(error);
-            alert('채팅 오류 발생.');
+            alert('친구 요청을 거절하는 중에 오류가 발생했습니다.');
           }
         }
       });

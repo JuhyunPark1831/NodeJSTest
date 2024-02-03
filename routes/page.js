@@ -1,7 +1,7 @@
 const express = require('express');
 const { isLoggedIn, isNotLoggedIn } = require('../middlewares');
 const {
-  renderMain, renderJoin, renderUsers, renderRooms, renderFriendsRequest, renderFollow
+  renderMain, renderJoin, renderUsers, renderRooms, renderFriendsRequest, renderFollow, renderFriends
 } = require('../controllers/page');
 
 const router = express.Router();
@@ -14,17 +14,26 @@ router.use((req, res, next) => {
   next();
 });
 
+// GET /
 router.get('/', renderMain);
 
-router.get('/follow', isLoggedIn, renderFollow);
+// GET /rooms
+router.get('/rooms', isLoggedIn, renderRooms);
 
-router.get('/friends', isLoggedIn, renderFriendsRequest);
-
-router.get('/join', isNotLoggedIn, renderJoin);
-
+// GET /users
 router.get('/users', isLoggedIn, renderUsers);
 
-router.get('/rooms', isLoggedIn, renderRooms);
+// GET /friends
+router.get('/friends', isLoggedIn, renderFriends);
+
+// GET /friends/request
+router.get('/friends/request', isLoggedIn, renderFriendsRequest);
+
+// GET /follow
+router.get('/follow', isLoggedIn, renderFollow);
+
+// GET /join
+router.get('/join', isNotLoggedIn, renderJoin);
 
 
 module.exports = router;

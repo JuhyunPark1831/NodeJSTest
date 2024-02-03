@@ -10,12 +10,8 @@
       {% for chat in chats %}
         {% if chat.user === user %}
           <div class="mine">
-            <div>me</div>
-            {% if chat.gif %}
-              <img src="/gif/{{chat.gif}}">
-            {% else %}
-              <div>{{chat.chat}}</div>
-            {% endif %}
+            <div>{{chat.user}}</div>
+            <div>{{chat.chat}}</div>
           </div>
         {% elif chat.user === 'system' %}
           <div class="system">
@@ -24,11 +20,7 @@
         {% else %}
           <div class="other">
             <div>{{chat.user}}</div>
-            {% if chat.gif %}
-              <img src="/gif/{{chat.gif}}">
-            {% else %}
-              <div>{{chat.chat}}</div>
-            {% endif %}
+            <div>{{chat.chat}}</div>
           </div>
         {% endif %}
       {% endfor %}
@@ -38,16 +30,25 @@
     <input type="text" id="chat" name="chat">
     <button type="submit">전송</button>
   </form>
+  <!-- External Scripts -->
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
+
+  <!-- Chatting Script -->
   <script>
-    const socket = io.connect('http://localhost:8001/chat', {
+    // Socket.IO 연결
+    const socket = io.connect('http://52.79.174.66:8080/chat', {
       path: '/socket.io',
     });
+
+    // 사용자 닉네임 가져오기
     const userNickElement = document.getElementById('user-nick');
     const userNick = userNickElement ? userNickElement.dataset.usernick : null;
 
+    // 방 입장 이벤트
     socket.emit('join', new URL(location).pathname.split('/').at(-1), userNick);
+
+    // 시스템 메시지 수신 이벤트
     socket.on('join', function (data) {
       const div = document.createElement('div');
       div.classList.add('system');
@@ -56,6 +57,8 @@
       div.appendChild(chat);
       document.querySelector('#chat-list').appendChild(div);
     });
+
+    // 퇴장 메시지 수신 이벤트
     socket.on('exit', function (data) {
       const div = document.createElement('div');
       div.classList.add('system');
@@ -64,9 +67,11 @@
       div.appendChild(chat);
       document.querySelector('#chat-list').appendChild(div);
     });
+
+    // 채팅 메시지 수신 이벤트
     socket.on('chat', function (data) {
       const div = document.createElement('div');
-      if (data.user === '{{user}}') {
+      if (data.user === '{{ user }}') {
         div.classList.add('mine');
       } else {
         div.classList.add('other');
@@ -81,10 +86,12 @@
       }
       document.querySelector('#chat-list').appendChild(div);
     });
+
+    // 채팅 전송 이벤트
     document.querySelector('#chat-form').addEventListener('submit', function (e) {
       e.preventDefault();
       if (e.target.chat.value) {
-        axios.post('/chatroom/room/{{room.id}}/chat', {
+        axios.post('/chatroom/room/{{ room.id }}/chat', {
           chat: this.chat.value,
         })
           .then(() => {

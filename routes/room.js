@@ -1,10 +1,8 @@
 const express = require('express');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const { isLoggedIn } = require('../middlewares');
 
 const {
-  renderMain, renderRoom, createRoom, enterRoom, sendChat, enterPrivateRoom,
+  renderRoom, createRoom, enterRoom, sendChat, enterPrivateRoom,
 } = require('../controllers/room');
 
 const router = express.Router();
@@ -17,17 +15,20 @@ router.use((req, res, next) => {
   next();
 });
 
-router.get('/', renderMain);
+// GET /chatroom
+router.get('/', isLoggedIn, renderRoom);
 
-router.get('/room', renderRoom);
+// POST /chatroom/room
+router.post('/room', isLoggedIn, createRoom);
 
-router.post('/room', createRoom);
+// GET /chatroom/room/:id
+router.get('/room/:id', isLoggedIn, enterRoom);
 
-router.get('/room/:id', enterRoom);
+// POST /chatroom/room/id/chat
+router.post('/room/:id/chat', isLoggedIn, sendChat);
 
-router.post('/room/:id/chat', sendChat);
-
-router.post('/room/private/enter', enterPrivateRoom);
+// POST /chatroom/room/private/enter
+router.post('/room/private/enter', isLoggedIn, enterPrivateRoom);
 
 
 module.exports = router;
