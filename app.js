@@ -23,6 +23,17 @@ const { sequelize } = require('./models');
 const passportConfig = require('./passport');
 const webSocket = require('./socket');
 
+//socketMiddleware 설정
+const sessionMiddleware = session({
+  resave: false,
+  saveUninitialized: false,
+  secret: process.env.COOKIE_SECRET,
+  cookie: {
+    httpOnly: true,
+    secure: false,
+  },
+});
+
 // Express 앱 생성
 const app = express();
 
